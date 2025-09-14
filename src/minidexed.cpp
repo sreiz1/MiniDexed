@@ -516,15 +516,13 @@ void CMiniDexed::Run (unsigned nCore)
 			// process the TGs, assigned to this core (2 or 3)
 
 			assert (m_nFramesToProcess <= m_pConfig->MaxChunkSize);
-			unsigned nTG = m_pConfig->GetTGsCore1() + (nCore-2)*m_pConfig->GetTGsCore23();
-			for (unsigned i = 0; i < m_pConfig->GetTGsCore23(); i++, nTG++)
+			// TGs are spread equally over cores 1, 2, 3, interleaved and reversed
+			// so that when not divisible cores 2 and 3 have one more TG than core 1
+			for (unsigned nTG = 3 - nCore; nTG < m_pConfig->GetToneGenerators(); nTG += 3)
 			{
 				assert (nTG < CConfig::AllToneGenerators);
-				if (nTG < m_pConfig->GetToneGenerators())
-				{
-					assert (m_pTG[nTG]);
-					m_pTG[nTG]->getSamples (m_OutputLevel[nTG],m_nFramesToProcess);
-				}
+				assert (m_pTG[nTG]);
+				m_pTG[nTG]->getSamples (m_OutputLevel[nTG],m_nFramesToProcess);
 			}
 		}
 	}
@@ -1324,9 +1322,13 @@ void CMiniDexed::ProcessSound (void)
 			m_CoreStatus[nCore] = CoreStatusBusy;
 		}
 
+
 		// process the TGs assigned to core 1
+
 		assert (nFrames <= CConfig::MaxChunkSize);
-		for (unsigned i = 0; i < m_pConfig->GetTGsCore1(); i++)
+		// TGs are spread equally over cores 1, 2, 3, interleaved and reversed
+                // so that when not divisible cores 2 and 3 have one more TG than core 1
+		for (unsigned i = 2; i < m_pConfig->GetToneGenerators(); i += 3)
 		{
 			assert (m_pTG[i]);
 			m_pTG[i]->getSamples (m_OutputLevel[i], nFrames);

@@ -39,15 +39,12 @@ void CConfig::Load (void)
 	// Number of Tone Generators and Polyphony
 	m_nToneGenerators = m_Properties.GetNumber ("ToneGenerators", DefToneGenerators);
 	m_nPolyphony = m_Properties.GetNumber ("Polyphony", DefaultNotes);
-	// At present there are only two options for tone generators: min or max
-	// and for the Pi 1,2,3 these are the same anyway.
-	if ((m_nToneGenerators != MinToneGenerators) && (m_nToneGenerators != AllToneGenerators))
-	{
-		m_nToneGenerators = DefToneGenerators;
+	if (m_nToneGenerators > AllToneGenerators) {
+		m_nToneGenerators = AllToneGenerators;
 	}
 	if (m_nPolyphony > MaxNotes)
 	{
-		m_nPolyphony = DefaultNotes;
+		m_nPolyphony = MaxNotes;
 	}
 	
 	m_bUSBGadget = m_Properties.GetNumber ("USBGadget", 0) != 0;
@@ -225,38 +222,6 @@ unsigned CConfig::GetToneGenerators (void) const
 unsigned CConfig::GetPolyphony (void) const
 {
 	return m_nPolyphony;
-}
-
-unsigned CConfig::GetTGsCore1 (void) const
-{
-#ifndef ARM_ALLOW_MULTI_CORE
-	return 0;
-#else
-	if (m_nToneGenerators > MinToneGenerators)
-	{
-		return TGsCore1 + TGsCore1Opt;
-	}
-	else
-	{
-		return TGsCore1;
-	}
-#endif
-}
-
-unsigned CConfig::GetTGsCore23 (void) const
-{
-#ifndef ARM_ALLOW_MULTI_CORE
-	return 0;
-#else
-	if (m_nToneGenerators > MinToneGenerators)
-	{
-		return TGsCore23 + TGsCore23Opt;
-	}
-	else
-	{
-		return TGsCore23;
-	}
-#endif
 }
 
 bool CConfig::GetUSBGadget (void) const
